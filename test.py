@@ -85,3 +85,34 @@ SOLUTIONS = [
 deduped = rouge.rouge_l_dedup(SOLUTIONS, 0.4)
 for s in deduped:
     print(s)
+
+# print scores
+scorer = rouge.RougeLScorer()
+scores = scorer.score("a b c d e", "c a f e")
+print(f"F-measure: {scores.fmeasure}")
+print(f"Precision: {scores.precision}")
+print(f"Recall: {scores.recall}")
+
+# try out global dedup
+DATASET = [
+    "a b c d e",
+    "c a f e",
+    "a b c d e",
+    "c a f e",
+    "a b c d e",
+    "c a f e",
+    "a b c d e",
+    "c a f e",
+    "a b c d e",
+    "c a f e",
+    "a b c d e",
+    "ada b c d e",
+    "baca fede",
+    "a b c d e",
+    "aa f e",
+]
+
+# dedup::rouge_l_grouped_dedup(&solutions, threshold, dedup_prob, max_group_size)
+deduped = rouge.rouge_l_grouped_dedup(DATASET, 0.6, 0.95, 3)
+for s in deduped:
+    print(s)
