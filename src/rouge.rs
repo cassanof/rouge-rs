@@ -1,5 +1,6 @@
 use crate::tokenizer::{RougeTokenizer, Token, Tokenizer};
 
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Score {
     pub precision: f64,
     pub recall: f64,
@@ -142,5 +143,72 @@ mod tests {
         let can = ["b", "c"];
         let table = lcs_table(&refe, &can);
         assert_eq!(table[2][2], 1);
+    }
+
+    #[test]
+    fn basic_similarity() {
+        let scorer = RougeLScorer::default();
+        let score = scorer.score("apple orange", "apple orange");
+        assert_eq!(score.precision, 1.0);
+        assert_eq!(score.recall, 1.0);
+        assert_eq!(score.fmeasure, 1.0);
+    }
+
+    #[test]
+    fn no_overlap() {
+        let scorer = RougeLScorer::default();
+        let score = scorer.score("apple", "banana");
+        assert_eq!(score.precision, 0.0);
+        assert_eq!(score.recall, 0.0);
+        assert_eq!(score.fmeasure, 0.0);
+    }
+
+    #[test]
+    fn very_long_strings() {
+        let scorer = RougeLScorer::default();
+        let score = scorer.score(
+            "this is a very long string that is not very similar to the other string",
+            "this is a very long string that is not very similar to the other string",
+        );
+        assert_eq!(score.precision, 1.0);
+        assert_eq!(score.recall, 1.0);
+        assert_eq!(score.fmeasure, 1.0);
+    }
+
+    #[test]
+    fn sort_of_similar() {
+        let scorer = RougeLScorer::default();
+        let score = scorer.score("apple orange", "apple banana");
+        assert_eq!(score.precision, 0.5);
+        assert_eq!(score.recall, 0.5);
+        assert_eq!(score.fmeasure, 0.5);
+    }
+
+    #[test]
+    fn code_snippet() {
+        let scorer = RougeLScorer::default();
+        let score = scorer.score(
+            "fn fib(n: u64) -> u64 {
+                if n == 0 {
+                    return 0;
+                } else if n == 2 {
+                    return 1;
+                } else {
+                    return fib(n - 1) + fib(n - 2);
+                }
+            }",
+            "fn fib(n: u64) -> u64 {
+                if n == 0 {
+                    return 0;
+                } else if n == 1 {
+                    return 2;
+                } else {
+                    return fib(n - 1) + fib(n - 2) - fib(n - 3);
+                }
+            }",
+        );
+        assert!((score.precision - 0.8148148148148148).abs() < 0.0000000000000001);
+        assert!((score.recall - 0.9166666666666666).abs() < 0.0000000000000001);
+        assert!((score.fmeasure - 0.8627450980392156).abs() < 0.0000000000000001);
     }
 }
