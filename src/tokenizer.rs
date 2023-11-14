@@ -9,7 +9,7 @@ lazy_static! {
 
 pub type Token<'a> = &'a str;
 
-pub trait Tokenizer {
+pub trait Tokenizer: Send + Sync {
     fn tokenize<'a>(&self, text: &'a mut String) -> Vec<Token<'a>>;
 }
 

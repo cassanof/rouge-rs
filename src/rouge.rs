@@ -7,7 +7,7 @@ pub struct Score {
     pub fmeasure: f64,
 }
 
-pub trait Scorer {
+pub trait Scorer: Send + Sync {
     fn score(&self, refe: &str, can: &str) -> Score;
 }
 

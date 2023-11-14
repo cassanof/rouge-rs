@@ -3,11 +3,8 @@ name = "rouge-rs"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-dedup = ["dep:rayon", "dep:rand"]
-
 [dependencies]
 lazy_static = "1.4.0"
-rand = { version = "0.8.5", optional = true }
-rayon = { version = "1.8.0", optional = true }
+rand = "0.8.5"
+rayon = "1.8.0"
 regex = "1.10.2"
