@@ -1,9 +1,13 @@
 use crate::tokenizer::{RougeTokenizer, Token, Tokenizer};
 
+#[pyo3::prelude::pyclass]
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Score {
+    #[pyo3(get, set)]
     pub precision: f64,
+    #[pyo3(get, set)]
     pub recall: f64,
+    #[pyo3(get, set)]
     pub fmeasure: f64,
 }
 
@@ -11,8 +15,22 @@ pub trait Scorer: Send + Sync {
     fn score(&self, refe: &str, can: &str) -> Score;
 }
 
+#[pyo3::prelude::pyclass]
 pub struct RougeLScorer {
     tokenizer: Box<dyn Tokenizer>,
+}
+
+#[pyo3::prelude::pymethods]
+impl RougeLScorer {
+    #[new]
+    pub fn init() -> Self {
+        RougeLScorer::default()
+    }
+
+    #[pyo3(text_signature = "($self, refe, can)")]
+    pub fn score(&self, refe: &str, can: &str) -> Score {
+        Scorer::score(self, refe, can)
+    }
 }
 
 impl RougeLScorer {
